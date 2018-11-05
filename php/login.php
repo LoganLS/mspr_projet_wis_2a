@@ -20,9 +20,9 @@ if (!empty($_POST['email']) and !empty($_POST['password'])){
     //si on a trouvé un resultat
     if (!empty($member)){
         //si le mdp est le bon
-        if ($password===$member['password']){
+        if ($password===$member->password){
             //on connecte le member
-            $_SESSION['id'] = $member['id'];
+            $_SESSION['id'] = $member->id;
         }
         else {
             $_SESSION['error'] = "Le mot de passe est incorrect !";

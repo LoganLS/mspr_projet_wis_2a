@@ -21,7 +21,7 @@
                 unset($_SESSION['error']);
             } 
             ?>
-    </div>
+        </div>
         <div>
 			<button type="submit">Connexion</button>
         </div>

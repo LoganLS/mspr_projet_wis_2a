@@ -1,6 +1,5 @@
 <?php 
 	session_start();
-	$error = "";
     $title='';
     $description='';
 ?>
@@ -36,7 +35,13 @@
             <label for="password_bis">Confirmation du mot de passe</label>
             <input type="password" name="password_bis" id="password_bis">
         </div>
-        <div class="error"><?php echo $error; ?></div>
+        <div class="error">
+            <?php if(isset($_SESSION['error'])){
+                echo $_SESSION['error'];
+                unset($_SESSION['error']);
+            } 
+            ?>
+        </div>
         <div>
             <button type="submit">S'inscrire</button>
         </div>

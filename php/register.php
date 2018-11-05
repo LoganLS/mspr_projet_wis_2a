@@ -9,18 +9,18 @@ if (!empty($_POST['last_name']) and !empty($_POST['first_name']) and !empty($_PO
     $date_birthday=$_POST['date_birthday'];
     $username = $_POST['username'];
     $email = $_POST['email'];
-    $password = $_POST['password'];
-    $passwordBis = $_POST['password_bis'];
+    $password = md5($_POST['password']);
+    $passwordBis = md5($_POST['password_bis']);
     
     //Vérification formulaire
     if (strlen($username) < 2 || strlen($username) > 20){
-        $error = "Votre pseudo doit avoir entre 2 et 20 caractères !";
+        $_SESSION['error'] = "Votre pseudo doit avoir entre 2 et 20 caractères !";
     }
     else if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
-        $error = "Votre email n'est pas valide !";
+        $_SESSION['error'] = "Votre email n'est pas valide !";
     }
     else if ($password != $passwordBis){
-        $error = "Vos mots de passe ne correspondent pas !";
+        $_SESSION['error'] = "Vos mots de passe ne correspondent pas !";
     }
     else{
         //Vérification que le pseudo n'est pas pris
@@ -30,7 +30,7 @@ if (!empty($_POST['last_name']) and !empty($_POST['first_name']) and !empty($_PO
         $stmt->bindValue(":username",$username);
         $stmt->execute();
         if($stmt->rowCount()===1){
-            $error="Pseudo déjà utilisé !";
+            $_SESSION['error']="Pseudo déjà utilisé !";
         }else{
             //Vérification que le mail n'est pas pris
             $sql="SELECT email FROM users
@@ -39,23 +39,30 @@ if (!empty($_POST['last_name']) and !empty($_POST['first_name']) and !empty($_PO
             $stmt->bindValue(":email",$email);
             $stmt->execute();
             if($stmt->rowCount()===1){
-                $error="Adresse email déjà utilisée !";
+                $_SESSION['error']="Adresse email déjà utilisée !";
             }
         }
-    }
-    //Si pas d'erreur
-    if (empty($error)){
-        $sql = "INSERT INTO users 
-                VALUES (NULL, :username, :email, :password, 'utilisateur', NOW())";
-        $stmt = $conn->prepare($sql);
-        $stmt->bindValue(":username", $username);
-        $stmt->bindValue(":email", $email);
-        $stmt->bindValue(":password", md5($password));
-        $stmt->execute();
-        //Création de la variable de session : id
-        $_SESSION['id']=$conn->lastInsertId();
-        header("Location:index.php");
+        if(empty($_SESSION['error'])){
+            $sql = "INSERT INTO users(last_name,first_name, date_birthday, username,email,password,role,date_created)
+                        VALUES(:last_name, :first_name, :date_birthday, :username, :email, :password, 'utilisateur', NOW())";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(":last_name",$last_name);
+            $stmt->bindValue(":first_name",$first_name);
+            $stmt->bindValue("date_birthday",$date_birthday);
+            $stmt->bindValue(":username", $username);
+            $stmt->bindValue(":email", $email);
+            $stmt->bindValue(":password",$password);
+            $stmt->execute();
+            //Création de la variable de session : id
+            $_SESSION['id']=$conn->lastInsertId();
+        }
     }
 }else{
-    $error="Veuillez saisir tous les champs !";
+    $_SESSION['error']="Veuillez saisir tous les champs !";
+}
+
+if(!empty($_SESSION['error'])){
+    header("Location:../register.php");
+}else{
+    header("Location:../index.php");
 }

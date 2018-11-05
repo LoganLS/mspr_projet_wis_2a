@@ -19,11 +19,7 @@
         },
         columnFormat:'dddd',
         events:[
-            
-            
-            
-            
-            
+ 
         ]
     });
 });
